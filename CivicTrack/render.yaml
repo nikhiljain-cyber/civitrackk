@@ -15,18 +15,14 @@ services:
     rootDir: CivicTrack
     dockerfilePath: ./backend/Dockerfile
     dockerContext: .
-    plan: 0.5c-512mb
+    plan: free
     region: singapore
     healthCheckPath: /health
-    disk:
-      name: civictrack-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: DATABASE_URL
-        value: sqlite:////var/data/civictrack.db
+        value: sqlite:////tmp/civictrack.db
       - key: UPLOAD_DIR
-        value: /var/data/uploads
+        value: /tmp/civictrack-uploads
       - key: JWT_SECRET
         generateValue: true
       - key: DEMO_MODE
