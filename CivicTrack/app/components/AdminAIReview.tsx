@@ -1,0 +1,10 @@
+"use client";
+import { useState } from "react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
+import { api, json, type Complaint } from "@/app/lib/api";
+
+export default function AdminAIReview({item,token,onSaved}:{item:Complaint;token:string;onSaved:()=>void}){
+ const [category,setCategory]=useState(item.ai_review_status==="Pending"?item.ai_suggestion:item.category),[score,setScore]=useState(item.priority_score),[note,setNote]=useState(item.ai_review_note||"Reviewed by municipal administrator"),[busy,setBusy]=useState(false),[error,setError]=useState("");
+ const save=async()=>{setBusy(true);setError("");try{await api(`/complaints/${item.id}/ai-review`,token,json("PATCH",{category,priority_score:score,explanation:note}));onSaved();}catch(e){setError(e instanceof Error?e.message:"Could not save review");}finally{setBusy(false);}};
+ return <section className="ai-review-box"><div className="ai-review-header"><span><Sparkles size={14}/></span><div><b>Administrator review</b><small>Approve the suggestion or record a correction.</small></div><em>{item.ai_review_status||"Pending"}</em></div><label>Confirmed category<select value={category} onChange={e=>setCategory(e.target.value)}>{["Road damage","Waste management","Water supply","Drainage & sewage","Street lighting","Public infrastructure","Electricity","Public sanitation","Other"].map(c=><option key={c}>{c}</option>)}</select></label><label className="review-score-label">Priority score <b>{score}<small> / 100</small></b></label><input className="review-range" type="range" min="0" max="100" value={score} onChange={e=>setScore(Number(e.target.value))}/><label>Review note<input value={note} onChange={e=>setNote(e.target.value)} maxLength={500}/></label>{error&&<small className="review-error">{error}</small>}<button className="button button-outline review-submit" disabled={busy||note.trim().length<4} onClick={save}>{busy?"Saving review…":"Save human review"}{item.ai_suggestion===category?<Check size={14}/>:<ArrowRight size={14}/>}</button></section>;
+}

@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: civictrack
+      POSTGRES_USER: civictrack
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-civictrack-demo}
+    volumes:
+      - civictrack-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U civictrack -d civictrack"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://civictrack:${POSTGRES_PASSWORD:-local-civictrack-demo}@db:5432/civictrack
+      JWT_SECRET: ${JWT_SECRET:-change-this-demo-secret-before-sharing}
+      DEMO_MODE: ${DEMO_MODE:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - civictrack-uploads:/srv/civictrack/backend/uploads
+    ports:
+      - "8000:8000"
+  web:
+    build:
+      context: .
+      args:
+        BACKEND_URL: http://api:8000
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+volumes:
+  civictrack-db:
+  civictrack-uploads:

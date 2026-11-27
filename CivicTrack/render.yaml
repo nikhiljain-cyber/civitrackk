@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: civictrack-public-demo
+    runtime: static
+    rootDir: CivicTrack
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./out
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: https://civictrack-api.onrender.com
+
+  - type: web
+    name: civictrack-api
+    runtime: docker
+    rootDir: CivicTrack
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    plan: 0.5c-512mb
+    region: singapore
+    healthCheckPath: /health
+    disk:
+      name: civictrack-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:////var/data/civictrack.db
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DEMO_MODE
+        value: "false"
+      - key: CORS_ORIGINS
+        value: https://civictrack-public-demo.onrender.com,http://localhost:3000,http://127.0.0.1:3000

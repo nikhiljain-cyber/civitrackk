@@ -1,0 +1,10 @@
+"use client";
+import { useState, type FormEvent } from "react";
+import { Plus, Users } from "lucide-react";
+import { api, json, type Department } from "@/app/lib/api";
+
+export default function OfficerManagement({departments,token,onRefresh,notify}:{departments:Department[];token:string;onRefresh:()=>void;notify:(message:string)=>void}){
+ const [open,setOpen]=useState(false),[name,setName]=useState(""),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[departmentId,setDepartmentId]=useState(""),[busy,setBusy]=useState(false);
+ const save=async(e:FormEvent)=>{e.preventDefault();setBusy(true);try{await api("/officers",token,json("POST",{name,email,password,department_id:Number(departmentId)}));setName("");setEmail("");setPassword("");setOpen(false);notify("Officer account created");onRefresh();}catch(err){notify(err instanceof Error?err.message:"Could not create officer account");}finally{setBusy(false);}};
+ return <section className="panel officer-management"><div className="officer-manage-copy"><span><Users size={16}/></span><div><b>Officer accounts</b><small>Create department officer access for the demo workspace.</small></div></div><button className="button button-outline" onClick={()=>setOpen(!open)}><Plus size={14}/> Add officer</button>{open&&<form className="department-add-form" onSubmit={save}><label>Full name<input value={name} onChange={e=>setName(e.target.value)} minLength={2} maxLength={100} required placeholder="Officer name"/></label><label>Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="officer@civictrack.demo"/></label><label>Temporary password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} minLength={8} required/></label><label>Department<select value={departmentId} onChange={e=>setDepartmentId(e.target.value)} required><option value="">Choose department…</option>{departments.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></label><button className="button button-primary" disabled={busy||!departmentId}>{busy?"Creating…":"Create account"}</button></form>}</section>;
+}

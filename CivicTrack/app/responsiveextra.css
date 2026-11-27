@@ -1,0 +1,1 @@
+@media(max-width:700px){.officer-management{align-items:flex-start}.officer-management>.department-add-form{grid-template-columns:1fr 1fr}.officer-management>.department-add-form button{grid-column:1 / 3}.location-actions{grid-column:1 / 3;margin:0}.location-actions .gps-button{flex:1}.map-controls .map-layer-button{flex:1;justify-content:center}}
