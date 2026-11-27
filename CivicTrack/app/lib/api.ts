@@ -5,7 +5,7 @@ export type Officer={id:number;name:string;email:string;role:string;department_i
 export type Analytics={total:number;pending:number;in_progress:number;resolved:number;overdue:number;avg_resolution_days:number;verification_rate:number;categories:{name:string;value:number}[];trend:{month:string;reported:number;resolved:number}[];departments:{department:string;score:number|null;resolved_rate:number;avg_days:number;overdue_rate:number;verified_rate:number;reopened_rate:number;citizen_rating:number|null;cases:number}[];priority:{name:string;value:number}[];demo_mode:boolean;weights:Record<string,number>};
 
 const API_BASE=(process.env.NEXT_PUBLIC_API_BASE_URL||"").replace(/\/$/,"");
-export const apiUrl=(path:string)=>`${API_BASE}/api${path}`;
+export const apiUrl=(path:string)=>API_BASE?`${API_BASE}${path}`:`/api${path}`;
 
 export async function api<T>(path:string, token?:string|null, options:RequestInit={}):Promise<T>{
   const headers=new Headers(options.headers);
